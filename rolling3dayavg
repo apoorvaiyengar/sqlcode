@@ -1,0 +1,22 @@
+
+
+SELECT 
+  current_day.transaction_date,
+  current_day.daily_total,
+  ROUND(AVG(past_day.daily_total), 2) AS total_rolling_3_day_avg
+FROM (
+  SELECT DATE(transaction_time) AS transaction_date,
+         SUM(transaction_amount::numeric) AS daily_total
+  FROM transactions
+  GROUP BY DATE(transaction_time)
+) current_day
+JOIN (
+  SELECT DATE(transaction_time) AS transaction_date,
+         SUM(transaction_amount::numeric) AS daily_total
+  FROM transactions
+  GROUP BY DATE(transaction_time)
+) past_day
+  ON past_day.transaction_date BETWEEN current_day.transaction_date - INTERVAL '2 day'
+                                 AND current_day.transaction_date
+WHERE current_day.transaction_date = '2021-01-31'
+GROUP BY current_day.transaction_date, current_day.daily_total;
