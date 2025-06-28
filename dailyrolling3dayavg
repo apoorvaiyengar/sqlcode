@@ -1,0 +1,11 @@
+WITH daily_totals AS ( 
+  SELECT DATE(transaction_time) AS transaction_date, 
+  SUM(transaction_amount::numeric) AS daily_total 
+  FROM transactions 
+  GROUP BY DATE(transaction_time) ) 
+  
+  
+  SELECT transaction_date, daily_total, ROUND(AVG(daily_total) 
+  OVER ( ORDER BY transaction_date 
+        ROWS BETWEEN 2 PRECEDING AND CURRENT ROW ), 2) AS total_rolling_3_day_avg 
+  FROM daily_totals WHERE transaction_date = '2021-01-31';
